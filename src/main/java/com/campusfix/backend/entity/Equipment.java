@@ -1,6 +1,7 @@
 package com.campusfix.backend.entity;
 
 import com.campusfix.backend.enums.EquipmentType;
+import com.campusfix.backend.entity.Location;
 import jakarta.persistence.*;
 
 @Entity
@@ -17,6 +18,10 @@ public class Equipment {
     private EquipmentType type;
 
     private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     public Equipment() {
     }
@@ -51,5 +56,13 @@ public class Equipment {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 }

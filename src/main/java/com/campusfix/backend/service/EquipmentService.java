@@ -38,6 +38,7 @@ public class EquipmentService {
         existingEquipment.setName(updatedEquipment.getName());
         existingEquipment.setType(updatedEquipment.getType());
         existingEquipment.setDescription(updatedEquipment.getDescription());
+        existingEquipment.setLocation(updatedEquipment.getLocation());
 
         return equipmentRepository.save(existingEquipment);
     }
