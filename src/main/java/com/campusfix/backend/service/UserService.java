@@ -29,7 +29,7 @@ public class UserService {
 
     public User updateUser(Long id, User updatedUser) {
 
-        User existingUser = userRepository.findById(id).orElse(null);
+        User existingUser  = userRepository.findById(id).orElse(null);
 
         if (existingUser == null) {
             return null;
