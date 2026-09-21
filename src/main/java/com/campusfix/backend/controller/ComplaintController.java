@@ -45,4 +45,17 @@ public class ComplaintController {
     public void deleteComplaint(@PathVariable Long id) {
         complaintService.deleteComplaint(id);
     }
+
+    @PutMapping("/{id}/start")
+    public ComplaintResponseDTO startComplaint(
+            @PathVariable Long id) {
+
+        return complaintService.startComplaint(id);
+    }
+    @PutMapping("/{id}/resolve")
+    public ComplaintResponseDTO resolveComplaint(
+            @PathVariable Long id) {
+
+        return complaintService.resolveComplaint(id);
+    }
 }

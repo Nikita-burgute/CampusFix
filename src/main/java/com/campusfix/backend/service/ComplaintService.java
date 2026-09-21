@@ -123,4 +123,39 @@ public class ComplaintService {
     public void deleteComplaint(Long id) {
         complaintRepository.deleteById(id);
     }
+
+    public ComplaintResponseDTO startComplaint(Long id) {
+
+        Complaint complaint =
+                complaintRepository.findById(id).orElse(null);
+
+        if (complaint == null) {
+            return null;
+        }
+
+        complaint.setStatus(ComplaintStatus.IN_PROGRESS);
+
+        Complaint updatedComplaint =
+                complaintRepository.save(complaint);
+
+        return convertToResponseDTO(updatedComplaint);
+    }
+
+    public ComplaintResponseDTO resolveComplaint(Long id) {
+
+        Complaint complaint =
+                complaintRepository.findById(id).orElse(null);
+
+        if (complaint == null) {
+            return null;
+        }
+
+        complaint.setStatus(ComplaintStatus.RESOLVED);
+
+        Complaint updatedComplaint =
+                complaintRepository.save(complaint);
+
+        return convertToResponseDTO(updatedComplaint);
+    }
+
 }
