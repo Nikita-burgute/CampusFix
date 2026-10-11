@@ -22,10 +22,13 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+
     public User createUser(User user) {
+        user.setRole(com.campusfix.backend.enums.Role.STUDENT);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
+
 
     public List<User> getAllUsers() {
         return userRepository.findAll();

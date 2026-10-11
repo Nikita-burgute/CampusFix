@@ -43,10 +43,36 @@ public class SecurityConfig {
                                 )
                         )
                 )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/test").permitAll()
+
+                        // Public registration
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.POST,
+                                "/api/users"
+                        ).permitAll()
+
+                        // Only ADMIN can assign complaints
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.POST,
+                                "/api/assignments"
+                        ).hasRole("ADMIN")
+
+                        // Only ADMIN can update or delete users
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.PUT,
+                                "/api/users/**"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.DELETE,
+                                "/api/users/**"
+                        ).hasRole("ADMIN")
+
+                        // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
+
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
