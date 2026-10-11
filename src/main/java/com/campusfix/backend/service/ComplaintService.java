@@ -158,4 +158,29 @@ public class ComplaintService {
         return convertToResponseDTO(updatedComplaint);
     }
 
+    public ComplaintResponseDTO verifyResolution(Long id, boolean approved) {
+
+        Complaint complaint =
+                complaintRepository.findById(id).orElse(null);
+
+        if (complaint == null) {
+            return null;
+        }
+
+        if (complaint.getStatus() != ComplaintStatus.RESOLVED) {
+            return null;
+        }
+
+        if (approved) {
+            complaint.setStatus(ComplaintStatus.CLOSED);
+        } else {
+            complaint.setStatus(ComplaintStatus.REOPENED);
+        }
+
+        Complaint updatedComplaint =
+                complaintRepository.save(complaint);
+
+        return convertToResponseDTO(updatedComplaint);
+    }
+
 }

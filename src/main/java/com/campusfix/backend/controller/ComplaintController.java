@@ -58,4 +58,12 @@ public class ComplaintController {
 
         return complaintService.resolveComplaint(id);
     }
+
+    @PutMapping("/{id}/verify")
+    public ComplaintResponseDTO verifyResolution(
+            @PathVariable Long id,
+            @RequestParam boolean approved) {
+
+        return complaintService.verifyResolution(id, approved);
+    }
 }
