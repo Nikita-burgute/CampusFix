@@ -44,6 +44,7 @@ public class SecurityConfig {
                         )
                 )
 
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/test").permitAll()
 
@@ -53,17 +54,47 @@ public class SecurityConfig {
                                 "/api/users"
                         ).permitAll()
 
+                        // Only ADMIN can create users with custom roles
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.POST,
+                                "/api/users/admin"
+                        ).hasRole("ADMIN")
+
+                        // Only ADMIN can view users
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.GET,
+                                "/api/users",
+                                "/api/users/**"
+                        ).hasRole("ADMIN")
+
                         // Only ADMIN can assign complaints
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.POST,
                                 "/api/assignments"
                         ).hasRole("ADMIN")
 
-                        // Only ADMIN can update or delete users
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.PUT,
+                                "/api/complaints/*/verify"
+                        ).hasRole("ADMIN")
+
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.PUT,
+                                "/api/complaints/*/start",
+                                "/api/complaints/*/resolve"
+                        ).hasRole("TECHNICIAN")
+
+
+
+                        // Only ADMIN can update users
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.PUT,
                                 "/api/users/**"
                         ).hasRole("ADMIN")
+
+                        // Only ADMIN can delete users
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.DELETE,
                                 "/api/users/**"
@@ -72,6 +103,7 @@ public class SecurityConfig {
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
+
 
                 .addFilterBefore(
                         jwtAuthenticationFilter,

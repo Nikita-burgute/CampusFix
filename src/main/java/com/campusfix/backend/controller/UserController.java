@@ -52,4 +52,10 @@ public class UserController {
         userService.deleteUser(id);
         return "User deleted successfully";
     }
+
+    @PostMapping("/admin")
+    public UserResponseDTO createUserByAdmin(@RequestBody User user) {
+        User createdUser = userService.createUserByAdmin(user);
+        return new UserResponseDTO(createdUser);
+    }
 }

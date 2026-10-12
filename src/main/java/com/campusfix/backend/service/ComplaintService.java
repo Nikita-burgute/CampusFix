@@ -124,12 +124,17 @@ public class ComplaintService {
         complaintRepository.deleteById(id);
     }
 
+
     public ComplaintResponseDTO startComplaint(Long id) {
 
         Complaint complaint =
                 complaintRepository.findById(id).orElse(null);
 
         if (complaint == null) {
+            return null;
+        }
+
+        if (complaint.getStatus() != ComplaintStatus.ASSIGNED) {
             return null;
         }
 
@@ -141,12 +146,18 @@ public class ComplaintService {
         return convertToResponseDTO(updatedComplaint);
     }
 
+
+
     public ComplaintResponseDTO resolveComplaint(Long id) {
 
         Complaint complaint =
                 complaintRepository.findById(id).orElse(null);
 
         if (complaint == null) {
+            return null;
+        }
+
+        if (complaint.getStatus() != ComplaintStatus.IN_PROGRESS) {
             return null;
         }
 
@@ -157,6 +168,7 @@ public class ComplaintService {
 
         return convertToResponseDTO(updatedComplaint);
     }
+
 
     public ComplaintResponseDTO verifyResolution(Long id, boolean approved) {
 

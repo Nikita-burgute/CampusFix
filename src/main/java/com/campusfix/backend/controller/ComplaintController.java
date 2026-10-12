@@ -5,7 +5,9 @@ import com.campusfix.backend.dto.ComplaintResponseDTO;
 import com.campusfix.backend.dto.ComplaintUpdateDTO;
 import com.campusfix.backend.entity.Complaint;
 import com.campusfix.backend.service.ComplaintService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -52,12 +54,22 @@ public class ComplaintController {
 
         return complaintService.startComplaint(id);
     }
-    @PutMapping("/{id}/resolve")
-    public ComplaintResponseDTO resolveComplaint(
-            @PathVariable Long id) {
 
-        return complaintService.resolveComplaint(id);
+    @PutMapping("/{id}/resolve")
+    public ComplaintResponseDTO resolveComplaint(@PathVariable Long id) {
+
+        ComplaintResponseDTO response = complaintService.resolveComplaint(id);
+
+        if (response == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Complaint not found or is not IN_PROGRESS"
+            );
+        }
+
+        return response;
     }
+
 
     @PutMapping("/{id}/verify")
     public ComplaintResponseDTO verifyResolution(

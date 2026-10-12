@@ -4,6 +4,7 @@ import com.campusfix.backend.entity.User;
 import com.campusfix.backend.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.campusfix.backend.enums.Role;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class UserService {
 
 
     public User createUser(User user) {
-        user.setRole(com.campusfix.backend.enums.Role.STUDENT);
+        user.setRole(Role.STUDENT);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -63,5 +64,10 @@ public class UserService {
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public User createUserByAdmin(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
 }
