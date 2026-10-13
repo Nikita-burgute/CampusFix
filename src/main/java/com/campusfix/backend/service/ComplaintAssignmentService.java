@@ -1,3 +1,4 @@
+
 package com.campusfix.backend.service;
 
 import com.campusfix.backend.dto.ComplaintAssignmentResponseDTO;
@@ -9,7 +10,9 @@ import com.campusfix.backend.enums.Role;
 import com.campusfix.backend.repository.ComplaintAssignmentRepository;
 import com.campusfix.backend.repository.ComplaintRepository;
 import com.campusfix.backend.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ComplaintAssignmentService {
@@ -29,39 +32,35 @@ public class ComplaintAssignmentService {
     }
 
     public ComplaintAssignmentResponseDTO assignComplaint(
-            Long complaintId,
-            Long technicianId) {
+            Long complaintId, Long technicianId) {
 
-        Complaint complaint =
-                complaintRepository.findById(complaintId).orElse(null);
+        Complaint complaint = complaintRepository.findById(complaintId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Complaint not found"));
 
-        User technician =
-                userRepository.findById(technicianId).orElse(null);
+        User technician = userRepository.findById(technicianId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Technician not found"));
 
-
-        if (complaint == null ||
-                technician == null ||
-                technician.getRole() != Role.TECHNICIAN) {
-            return null;
+        if (technician.getRole() != Role.TECHNICIAN) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "The selected user is not a technician");
         }
 
-        complaint.setStatus(ComplaintStatus.ASSIGNED);
-        complaintRepository.save(complaint);
+        ComplaintStatus status = complaint.getStatus();
 
-        ComplaintAssignment existingAssignment =
-                assignmentRepository.findByComplaintId(complaintId).orElse(null);
-
-        if (existingAssignment != null) {
-
-            existingAssignment.setTechnician(technician);
-
-            ComplaintAssignment updatedAssignment =
-                    assignmentRepository.save(existingAssignment);
-
-            return convertToResponseDTO(updatedAssignment);
+        if (status != ComplaintStatus.REPORTED
+                && status != ComplaintStatus.REOPENED
+                && status != ComplaintStatus.ASSIGNED) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Only REPORTED, REOPENED, or ASSIGNED complaints can be assigned");
         }
 
-        ComplaintAssignment assignment = new ComplaintAssignment();
+        ComplaintAssignment assignment =
+                assignmentRepository.findByComplaintId(complaintId)
+                        .orElseGet(ComplaintAssignment::new);
 
         assignment.setComplaint(complaint);
         assignment.setTechnician(technician);
@@ -69,9 +68,11 @@ public class ComplaintAssignmentService {
         ComplaintAssignment savedAssignment =
                 assignmentRepository.save(assignment);
 
+        complaint.setStatus(ComplaintStatus.ASSIGNED);
+        complaintRepository.save(complaint);
+
         return convertToResponseDTO(savedAssignment);
     }
-
 
     public ComplaintAssignmentResponseDTO convertToResponseDTO(
             ComplaintAssignment assignment) {
@@ -80,12 +81,8 @@ public class ComplaintAssignmentService {
                 new ComplaintAssignmentResponseDTO();
 
         response.setId(assignment.getId());
-        response.setComplaintId(
-                assignment.getComplaint().getId()
-        );
-        response.setTechnicianId(
-                assignment.getTechnician().getId()
-        );
+        response.setComplaintId(assignment.getComplaint().getId());
+        response.setTechnicianId(assignment.getTechnician().getId());
 
         return response;
     }

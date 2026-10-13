@@ -22,10 +22,10 @@ public class ComplaintController {
     }
 
     @PostMapping
-    public Complaint createComplaint(@RequestBody ComplaintRequestDTO request) {
+    public ComplaintResponseDTO createComplaint(
+            @RequestBody ComplaintRequestDTO request) {
         return complaintService.createComplaint(request);
     }
-
     @GetMapping
     public List<ComplaintResponseDTO> getAllComplaints() {
         return complaintService.getAllComplaintResponses();

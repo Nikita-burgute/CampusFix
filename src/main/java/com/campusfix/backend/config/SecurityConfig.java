@@ -87,12 +87,24 @@ public class SecurityConfig {
                         ).hasRole("TECHNICIAN")
 
 
-
                         // Only ADMIN can update users
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.PUT,
                                 "/api/users/**"
                         ).hasRole("ADMIN")
+
+                        // Only ADMIN can directly update complaints
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.PUT,
+                                "/api/complaints/**"
+                        ).hasRole("ADMIN")
+
+
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.DELETE,
+                                "/api/complaints/**"
+                        ).hasRole("ADMIN")
+
 
                         // Only ADMIN can delete users
                         .requestMatchers(
