@@ -1,19 +1,32 @@
+
 package com.campusfix.backend.dto;
 
 import com.campusfix.backend.enums.Priority;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 public class ComplaintRequestDTO {
 
+    @NotBlank(message = "Title is required")
     private String title;
 
+    @NotBlank(message = "Description is required")
     private String description;
 
+    @NotNull(message = "Priority is required")
     private Priority priority;
 
+    @NotNull(message = "Reporting user ID is required")
+    @Positive(message = "Reporting user ID must be positive")
     private Long reportedById;
 
+    @NotNull(message = "Location ID is required")
+    @Positive(message = "Location ID must be positive")
     private Long locationId;
 
+    @NotNull(message = "Equipment ID is required")
+    @Positive(message = "Equipment ID must be positive")
     private Long equipmentId;
 
     public ComplaintRequestDTO() {

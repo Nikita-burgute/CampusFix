@@ -1,13 +1,12 @@
+
 package com.campusfix.backend.controller;
 
 import com.campusfix.backend.dto.ComplaintRequestDTO;
 import com.campusfix.backend.dto.ComplaintResponseDTO;
 import com.campusfix.backend.dto.ComplaintUpdateDTO;
-import com.campusfix.backend.entity.Complaint;
 import com.campusfix.backend.service.ComplaintService;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,13 +22,15 @@ public class ComplaintController {
 
     @PostMapping
     public ComplaintResponseDTO createComplaint(
-            @RequestBody ComplaintRequestDTO request) {
+            @Valid @RequestBody ComplaintRequestDTO request) {
         return complaintService.createComplaint(request);
     }
+
     @GetMapping
     public List<ComplaintResponseDTO> getAllComplaints() {
         return complaintService.getAllComplaintResponses();
     }
+
     @GetMapping("/{id}")
     public ComplaintResponseDTO getComplaintById(@PathVariable Long id) {
         return complaintService.getComplaintResponseById(id);
@@ -38,8 +39,7 @@ public class ComplaintController {
     @PutMapping("/{id}")
     public ComplaintResponseDTO updateComplaint(
             @PathVariable Long id,
-            @RequestBody ComplaintUpdateDTO request) {
-
+            @Valid @RequestBody ComplaintUpdateDTO request) {
         return complaintService.updateComplaint(id, request);
     }
 
@@ -49,33 +49,19 @@ public class ComplaintController {
     }
 
     @PutMapping("/{id}/start")
-    public ComplaintResponseDTO startComplaint(
-            @PathVariable Long id) {
-
+    public ComplaintResponseDTO startComplaint(@PathVariable Long id) {
         return complaintService.startComplaint(id);
     }
 
     @PutMapping("/{id}/resolve")
     public ComplaintResponseDTO resolveComplaint(@PathVariable Long id) {
-
-        ComplaintResponseDTO response = complaintService.resolveComplaint(id);
-
-        if (response == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Complaint not found or is not IN_PROGRESS"
-            );
-        }
-
-        return response;
+        return complaintService.resolveComplaint(id);
     }
-
 
     @PutMapping("/{id}/verify")
     public ComplaintResponseDTO verifyResolution(
             @PathVariable Long id,
             @RequestParam boolean approved) {
-
         return complaintService.verifyResolution(id, approved);
     }
 }
