@@ -47,11 +47,31 @@ public class ComplaintService {
         this.equipmentRepository = equipmentRepository;
     }
 
+
     public ComplaintResponseDTO createComplaint(ComplaintRequestDTO request) {
 
-        User user = userRepository.findById(request.getReportedById())
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication.getName() == null
+                || authentication.getName().equals("anonymousUser")) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Authentication required");
+        }
+
+        User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Reporting user not found"));
+                        HttpStatus.NOT_FOUND,
+                        "Authenticated user not found"));
+
+        if (user.getRole() != Role.STUDENT) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Only students can create complaints");
+        }
 
         Location location = locationRepository.findById(request.getLocationId())
                 .orElseThrow(() -> new ResponseStatusException(
@@ -180,6 +200,32 @@ public class ComplaintService {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Complaint not found"));
     }
+
+    public List<ComplaintResponseDTO> getMyComplaints() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication.getName() == null
+                || authentication.getName().equals("anonymousUser")) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Authentication required");
+        }
+
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Authenticated user not found"));
+
+        return complaintRepository.findByReportedById(user.getId())
+                .stream()
+                .map(this::convertToResponseDTO)
+                .toList();
+    }
+
 
     private void verifyAssignedTechnician(Complaint complaint) {
 

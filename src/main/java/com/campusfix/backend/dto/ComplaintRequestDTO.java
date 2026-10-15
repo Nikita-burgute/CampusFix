@@ -17,10 +17,6 @@ public class ComplaintRequestDTO {
     @NotNull(message = "Priority is required")
     private Priority priority;
 
-    @NotNull(message = "Reporting user ID is required")
-    @Positive(message = "Reporting user ID must be positive")
-    private Long reportedById;
-
     @NotNull(message = "Location ID is required")
     @Positive(message = "Location ID must be positive")
     private Long locationId;
@@ -54,14 +50,6 @@ public class ComplaintRequestDTO {
 
     public void setPriority(Priority priority) {
         this.priority = priority;
-    }
-
-    public Long getReportedById() {
-        return reportedById;
-    }
-
-    public void setReportedById(Long reportedById) {
-        this.reportedById = reportedById;
     }
 
     public Long getLocationId() {

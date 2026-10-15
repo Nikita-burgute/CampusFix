@@ -26,4 +26,10 @@ public class ComplaintAssignmentController {
                 technicianId
         );
     }
+
+    @GetMapping("/my")
+    public java.util.List<ComplaintAssignmentResponseDTO> getMyAssignments() {
+        return assignmentService.getMyAssignments();
+    }
+
 }

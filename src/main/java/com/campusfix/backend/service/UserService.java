@@ -55,7 +55,7 @@ public class UserService {
                     passwordEncoder.encode(updatedUser.getPassword())
             );
         }
-        existingUser.setRole(updatedUser.getRole());
+
         existingUser.setDepartment(updatedUser.getDepartment());
         existingUser.setPhone(updatedUser.getPhone());
 
@@ -70,4 +70,13 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
+
+
+    public User getCurrentUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND,
+                        "Authenticated user not found"));
+    }
+
 }

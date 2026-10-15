@@ -13,6 +13,9 @@ import com.campusfix.backend.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.List;
 
 @Service
 public class ComplaintAssignmentService {
@@ -86,4 +89,35 @@ public class ComplaintAssignmentService {
 
         return response;
     }
+
+    public List<ComplaintAssignmentResponseDTO> getMyAssignments() {
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication.getName() == null
+                || authentication.getName().equals("anonymousUser")) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Authentication required");
+        }
+
+        User technician = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Authenticated user not found"));
+
+        if (technician.getRole() != Role.TECHNICIAN) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Only technicians can view their assignments");
+        }
+
+        return assignmentRepository.findByTechnicianId(technician.getId())
+                .stream()
+                .map(this::convertToResponseDTO)
+                .toList();
+    }
+
 }

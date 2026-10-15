@@ -42,6 +42,12 @@ public class SecurityConfig {
                                         "Unauthorized"
                                 )
                         )
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.sendError(
+                                        HttpServletResponse.SC_FORBIDDEN,
+                                        "Forbidden"
+                                )
+                        )
                 )
 
 
@@ -60,7 +66,13 @@ public class SecurityConfig {
                                 "/api/users/admin"
                         ).hasRole("ADMIN")
 
-                        // Only ADMIN can view users
+                        // Current authenticated user's profile
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.GET,
+                                "/api/users/me"
+                        ).authenticated()
+
+                        // Only ADMIN can view all users or individual users
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.GET,
                                 "/api/users",
@@ -73,25 +85,38 @@ public class SecurityConfig {
                                 "/api/assignments"
                         ).hasRole("ADMIN")
 
+                        // Students can create complaints
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.POST,
+                                "/api/complaints"
+                        ).hasRole("STUDENT")
 
+                        // Authenticated users can retrieve their own complaints
+                        // Ownership filtering is performed by getMyComplaints()
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.GET,
+                                "/api/complaints/my"
+                        ).authenticated()
+
+                        // Only ADMIN can view all complaints or individual complaints
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.GET,
+                                "/api/complaints",
+                                "/api/complaints/*"
+                        ).hasRole("ADMIN")
+
+                        // Only ADMIN can verify resolutions
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.PUT,
                                 "/api/complaints/*/verify"
                         ).hasRole("ADMIN")
 
-
+                        // Only TECHNICIAN can start or resolve complaints
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.PUT,
                                 "/api/complaints/*/start",
                                 "/api/complaints/*/resolve"
                         ).hasRole("TECHNICIAN")
-
-
-                        // Only ADMIN can update users
-                        .requestMatchers(
-                                org.springframework.http.HttpMethod.PUT,
-                                "/api/users/**"
-                        ).hasRole("ADMIN")
 
                         // Only ADMIN can directly update complaints
                         .requestMatchers(
@@ -99,14 +124,17 @@ public class SecurityConfig {
                                 "/api/complaints/**"
                         ).hasRole("ADMIN")
 
-
+                        // Only ADMIN can delete complaints
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.DELETE,
                                 "/api/complaints/**"
                         ).hasRole("ADMIN")
 
-
-                        // Only ADMIN can delete users
+                        // Only ADMIN can update or delete users
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.PUT,
+                                "/api/users/**"
+                        ).hasRole("ADMIN")
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.DELETE,
                                 "/api/users/**"

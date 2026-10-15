@@ -64,4 +64,11 @@ public class ComplaintController {
             @RequestParam boolean approved) {
         return complaintService.verifyResolution(id, approved);
     }
+
+
+    @GetMapping("/my")
+    public List<ComplaintResponseDTO> getMyComplaints() {
+        return complaintService.getMyComplaints();
+    }
+
 }
