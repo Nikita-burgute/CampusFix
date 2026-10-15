@@ -1,0 +1,8 @@
+:root {
+  /* old Vite styles */
+}
+
+body {
+  display: flex;
+  place-items: center;
+}
