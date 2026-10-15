@@ -1,7 +1,10 @@
+
 import { useState } from "react";
 import Login from "./pages/Login";
+import StudentDashboard from "./pages/StudentDashboard";
 import { loginUser } from "./services/api";
 import "./App.css";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function getSavedSession() {
   try {
@@ -59,11 +62,19 @@ export default function App() {
   }
 
   if (!session) {
-    return (
-      <Login onLogin={handleLogin} error={error} loading={loading} />
-    );
+    return <Login onLogin={handleLogin} error={error} loading={loading} />;
   }
 
+ if (session.user.role === "ADMIN") {
+  return (
+    <AdminDashboard
+      user={session.user}
+      onLogout={handleLogout}
+    />
+  );
+}
+
+if (session.user.role === "TECHNICIAN") {
   return (
     <main className="dashboard-page">
       <header className="dashboard-header">
@@ -71,33 +82,19 @@ export default function App() {
           <div className="brand-icon">C</div>
           <span>CampusFix</span>
         </div>
-
         <button className="logout-button" onClick={handleLogout}>
           Sign out
         </button>
       </header>
-
       <section className="welcome-card">
-        <span className="form-label">LOGIN SUCCESSFUL</span>
         <h1>Welcome, {session.user.name || session.user.email}!</h1>
-        <p>You are now signed in to CampusFix.</p>
-
-        <div className="user-details">
-          <div>
-            <span>Email address</span>
-            <strong>{session.user.email}</strong>
-          </div>
-          <div>
-            <span>Your role</span>
-            <strong>{session.user.role}</strong>
-          </div>
-        </div>
-
-        <p className="next-step-note">
-          Your account is authenticated. The role-specific complaint
-          dashboard will be added in a later step.
-        </p>
+        <p>The technician dashboard will be implemented next.</p>
       </section>
     </main>
+  );
+}
+
+  return (
+    <StudentDashboard user={session.user} onLogout={handleLogout} />
   );
 }

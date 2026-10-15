@@ -1,11 +1,41 @@
+
 const API_BASE_URL = "/api";
+
+function getToken() {
+  return sessionStorage.getItem("campusfix_token");
+}
+
+async function apiRequest(path, options = {}) {
+  const token = getToken();
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers,
+    },
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Your session has expired. Please sign in again.");
+    }
+
+    throw new Error(
+      data?.message || data?.detail || `Request failed (${response.status}).`
+    );
+  }
+
+  return data;
+}
 
 export async function loginUser(email, password) {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
 
@@ -21,3 +51,43 @@ export async function loginUser(email, password) {
 
   return data;
 }
+
+export function getCurrentUser() {
+  return apiRequest("/users/me");
+}
+
+export function getMyComplaints() {
+  return apiRequest("/complaints/my");
+}
+
+export function createComplaint(complaint) {
+  return apiRequest("/complaints", {
+    method: "POST",
+    body: JSON.stringify(complaint),
+  });
+
+
+}
+
+
+export function getAllComplaints() {
+  return apiRequest("/complaints");
+}
+
+
+export function getAllUsers() {
+  return apiRequest("/users");
+}
+
+export function assignTechnician(complaintId, technicianId) {
+  const params = new URLSearchParams({
+    complaintId: String(complaintId),
+    technicianId: String(technicianId),
+  });
+
+  return apiRequest(`/assignments?${params.toString()}`, {
+    method: "POST",
+  });
+}
+
+
