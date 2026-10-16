@@ -121,3 +121,12 @@ export function verifyComplaint(complaintId, approved) {
     }
   );
 }
+
+export async function verifyResolution(complaintId, approved) {
+  return apiRequest(
+    `/complaints/${complaintId}/verify?approved=${approved}`,
+    {
+      method: "PUT",
+    }
+  );
+}
