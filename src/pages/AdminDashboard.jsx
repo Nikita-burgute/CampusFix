@@ -4,6 +4,7 @@ import {
   getAllComplaints,
   getAllUsers,
   assignTechnician,
+  verifyComplaint,
 } from "../services/api";
 
 const STATUS_LABELS = {
@@ -23,6 +24,7 @@ export default function AdminDashboard({ user, onLogout }) {
   const [selectedTechnicians, setSelectedTechnicians] = useState({});
   const [loading, setLoading] = useState(true);
   const [assigningId, setAssigningId] = useState(null);
+  const [verifyingId, setVerifyingId] = useState(null);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -36,7 +38,9 @@ export default function AdminDashboard({ user, onLogout }) {
         getAllUsers(),
       ]);
 
-      setComplaints(Array.isArray(complaintData) ? complaintData : []);
+      setComplaints(
+        Array.isArray(complaintData) ? complaintData : []
+      );
 
       const technicianUsers = Array.isArray(userData)
         ? userData.filter((item) => item.role === "TECHNICIAN")
@@ -91,12 +95,38 @@ export default function AdminDashboard({ user, onLogout }) {
 
     try {
       await assignTechnician(complaint.id, technicianId);
-      setMessage(`Technician assigned to complaint #${complaint.id}.`);
+
+      setMessage(
+        `Technician assigned to complaint #${complaint.id}.`
+      );
+
       await loadDashboard();
     } catch (err) {
       setError(err.message || "Unable to assign technician.");
     } finally {
       setAssigningId(null);
+    }
+  }
+
+  async function handleVerify(complaint, approved) {
+    setVerifyingId(complaint.id);
+    setError("");
+    setMessage("");
+
+    try {
+      await verifyComplaint(complaint.id, approved);
+
+      setMessage(
+        approved
+          ? `Complaint #${complaint.id} closed successfully.`
+          : `Complaint #${complaint.id} reopened for further work.`
+      );
+
+      await loadDashboard();
+    } catch (err) {
+      setError(err.message || "Unable to verify complaint.");
+    } finally {
+      setVerifyingId(null);
     }
   }
 
@@ -119,7 +149,9 @@ export default function AdminDashboard({ user, onLogout }) {
       <section className="welcome-card">
         <p className="eyebrow">ADMINISTRATION</p>
         <h1>Welcome, {user.name || user.email}!</h1>
-        <p>Monitor complaints and track maintenance progress across campus.</p>
+        <p>
+          Monitor complaints and track maintenance progress across campus.
+        </p>
       </section>
 
       <section className="admin-stats" aria-label="Complaint statistics">
@@ -135,7 +167,9 @@ export default function AdminDashboard({ user, onLogout }) {
         <div className="panel-heading">
           <div>
             <h2>All Complaints</h2>
-            <p>Review complaints and assign eligible technicians.</p>
+            <p>
+              Review complaints, assign technicians, and verify completed work.
+            </p>
           </div>
 
           <button
@@ -177,6 +211,7 @@ export default function AdminDashboard({ user, onLogout }) {
                   <th>Equipment ID</th>
                   <th>Reported By</th>
                   <th>Technician Assignment</th>
+                  <th>Resolution Verification</th>
                 </tr>
               </thead>
 
@@ -186,15 +221,20 @@ export default function AdminDashboard({ user, onLogout }) {
                     complaint.status
                   );
 
+                  const isVerifying =
+                    verifyingId === complaint.id;
+
                   return (
                     <tr key={complaint.id}>
                       <td>#{complaint.id}</td>
+
                       <td>
                         <strong>{complaint.title}</strong>
                         <p className="complaint-description">
                           {complaint.description}
                         </p>
                       </td>
+
                       <td>
                         <span
                           className={`priority-label priority-${String(
@@ -204,29 +244,37 @@ export default function AdminDashboard({ user, onLogout }) {
                           {complaint.priority || "—"}
                         </span>
                       </td>
+
                       <td>
                         {STATUS_LABELS[complaint.status] ||
                           complaint.status ||
                           "—"}
                       </td>
+
                       <td>{complaint.locationId ?? "—"}</td>
                       <td>{complaint.equipmentId ?? "—"}</td>
                       <td>{complaint.reportedById ?? "—"}</td>
+
                       <td>
                         {canAssign ? (
                           <div className="assignment-controls">
                             <select
                               aria-label={`Technician for complaint ${complaint.id}`}
-                              value={selectedTechnicians[complaint.id] || ""}
+                              value={
+                                selectedTechnicians[complaint.id] || ""
+                              }
                               onChange={(event) =>
                                 handleTechnicianChange(
                                   complaint.id,
                                   event.target.value
                                 )
                               }
-                              disabled={assigningId === complaint.id}
+                              disabled={
+                                assigningId === complaint.id || loading
+                              }
                             >
                               <option value="">Select technician</option>
+
                               {technicians.map((technician) => (
                                 <option
                                   key={technician.id}
@@ -258,7 +306,49 @@ export default function AdminDashboard({ user, onLogout }) {
                           <span className="assignment-unavailable">
                             {complaint.status === "IN_PROGRESS"
                               ? "In progress"
-                              : "Not available"}
+                              : complaint.status === "RESOLVED"
+                                ? "Awaiting verification"
+                                : complaint.status === "CLOSED"
+                                  ? "Completed"
+                                  : "Not available"}
+                          </span>
+                        )}
+                      </td>
+
+                      <td>
+                        {complaint.status === "RESOLVED" ? (
+                          <div className="verification-controls">
+                            <button
+                              className="verify-close-button"
+                              onClick={() =>
+                                handleVerify(complaint, true)
+                              }
+                              disabled={isVerifying || loading}
+                            >
+                              {isVerifying
+                                ? "Saving..."
+                                : "Close Complaint"}
+                            </button>
+
+                            <button
+                              className="verify-reopen-button"
+                              onClick={() =>
+                                handleVerify(complaint, false)
+                              }
+                              disabled={isVerifying || loading}
+                            >
+                              Reopen Complaint
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="assignment-unavailable">
+                            {complaint.status === "CLOSED"
+                              ? "Verified and closed"
+                              : complaint.status === "REOPENED"
+                                ? "Needs reassignment"
+                                : complaint.status === "IN_PROGRESS"
+                                  ? "Technician working"
+                                  : "Pending resolution"}
                           </span>
                         )}
                       </td>

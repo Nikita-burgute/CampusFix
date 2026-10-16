@@ -1155,3 +1155,147 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Technician Dashboard */
+.complaints-section {
+  width: min(1240px, calc(100% - 40px));
+  margin: 0 auto 32px;
+  padding: 24px;
+  border: 1px solid #e8edf4;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgb(30 45 80 / 3%);
+  box-sizing: border-box;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 21px;
+  color: #172033;
+}
+
+.complaints-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.complaint-card {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.complaint-card h3 {
+  margin: 0 0 16px;
+  color: #172033;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.complaint-card p {
+  margin: 10px 0;
+  color: #667189;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.complaint-card strong {
+  color: #172033;
+}
+
+.complaints-section .logout-button {
+  padding: 10px 14px;
+  border: 1px solid #dfe5ef;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #35415b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.complaints-section .logout-button:hover {
+  background: #f5f7fb;
+}
+
+.complaints-section .logout-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.complaint-card button {
+  margin-top: 10px;
+  background: #4b5bdc;
+  border-color: #4b5bdc;
+  color: #ffffff;
+}
+
+.complaint-card button:hover {
+  background: #3949c4;
+}
+
+@media (max-width: 760px) {
+  .complaints-section {
+    width: calc(100% - 28px);
+    padding: 18px;
+  }
+
+  .complaints-list {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+  }
+}
+
+.verification-controls {
+  display: grid;
+  gap: 8px;
+  min-width: 145px;
+}
+
+.verify-close-button,
+.verify-reopen-button {
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.verify-close-button {
+  background: #25804b;
+}
+
+.verify-close-button:hover {
+  background: #1d663b;
+}
+
+.verify-reopen-button {
+  background: #c0392b;
+}
+
+.verify-reopen-button:hover {
+  background: #a52d22;
+}
+
+.verify-close-button:disabled,
+.verify-reopen-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

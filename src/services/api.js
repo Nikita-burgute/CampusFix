@@ -91,3 +91,33 @@ export function assignTechnician(complaintId, technicianId) {
 }
 
 
+export function getMyAssignments() {
+  return apiRequest("/assignments/my");
+}
+
+export function startComplaint(complaintId) {
+  return apiRequest(`/complaints/${complaintId}/start`, {
+    method: "PUT",
+  });
+}
+
+export function resolveComplaint(complaintId) {
+  return apiRequest(`/complaints/${complaintId}/resolve`, {
+    method: "PUT",
+  });
+}
+
+
+export function getComplaintById(complaintId) {
+  return apiRequest(`/complaints/${complaintId}`);
+}
+
+
+export function verifyComplaint(complaintId, approved) {
+  return apiRequest(
+    `/complaints/${complaintId}/verify?approved=${approved}`,
+    {
+      method: "PUT",
+    }
+  );
+}

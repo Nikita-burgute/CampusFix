@@ -5,6 +5,7 @@ import StudentDashboard from "./pages/StudentDashboard";
 import { loginUser } from "./services/api";
 import "./App.css";
 import AdminDashboard from "./pages/AdminDashboard";
+import TechnicianDashboard from "./pages/TechnicianDashboard";
 
 function getSavedSession() {
   try {
@@ -74,25 +75,16 @@ export default function App() {
   );
 }
 
+
 if (session.user.role === "TECHNICIAN") {
   return (
-    <main className="dashboard-page">
-      <header className="dashboard-header">
-        <div className="brand">
-          <div className="brand-icon">C</div>
-          <span>CampusFix</span>
-        </div>
-        <button className="logout-button" onClick={handleLogout}>
-          Sign out
-        </button>
-      </header>
-      <section className="welcome-card">
-        <h1>Welcome, {session.user.name || session.user.email}!</h1>
-        <p>The technician dashboard will be implemented next.</p>
-      </section>
-    </main>
+    <TechnicianDashboard
+      user={session.user}
+      onLogout={handleLogout}
+    />
   );
 }
+
 
   return (
     <StudentDashboard user={session.user} onLogout={handleLogout} />
