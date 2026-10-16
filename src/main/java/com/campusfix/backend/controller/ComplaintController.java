@@ -30,10 +30,9 @@ public class ComplaintController {
     public List<ComplaintResponseDTO> getAllComplaints() {
         return complaintService.getAllComplaintResponses();
     }
-
     @GetMapping("/{id}")
     public ComplaintResponseDTO getComplaintById(@PathVariable Long id) {
-        return complaintService.getComplaintResponseById(id);
+        return complaintService.getComplaintResponseByIdForCurrentUser(id);
     }
 
     @PutMapping("/{id}")

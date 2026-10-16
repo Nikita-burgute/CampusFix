@@ -117,6 +117,37 @@ public class ComplaintService {
         return convertToResponseDTO(complaint);
     }
 
+    public ComplaintResponseDTO getComplaintResponseByIdForCurrentUser(Long id) {
+        Complaint complaint = findComplaint(id);
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication.getName() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
+
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Authenticated user not found"));
+
+        if (user.getRole() == Role.ADMIN) {
+            return convertToResponseDTO(complaint);
+        }
+
+        if (user.getRole() == Role.TECHNICIAN) {
+            verifyAssignedTechnician(complaint);
+            return convertToResponseDTO(complaint);
+        }
+
+        throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "You are not allowed to view this complaint");
+    }
+
     public List<ComplaintResponseDTO> getAllComplaintResponses() {
         return complaintRepository.findAll()
                 .stream()
